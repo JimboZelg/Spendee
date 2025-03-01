@@ -1,25 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spendee/modules/auth/providers/auth_provider.dart';
-import '../providers/finance_provider.dart'; // Importa el AuthProvider
+import '../providers/finance_provider.dart';
+import '/../modules/auth/providers/auth_provider.dart';
 
-class AddExpenseScreen extends StatelessWidget {
+class AddExpenseScreen extends StatefulWidget {
+  const AddExpenseScreen({super.key});
+
+  @override
+  _AddExpenseScreenState createState() => _AddExpenseScreenState();
+}
+
+class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _amountController = TextEditingController();
   final _categoryController = TextEditingController();
-
-  AddExpenseScreen({super.key});
+  String _transactionType = 'Gasto'; // Estado para el tipo de transacción
 
   @override
   Widget build(BuildContext context) {
     final financeProvider = Provider.of<FinanceProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context); // Obtén el AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar Gasto')),
+      appBar: AppBar(title: const Text('Agregar Transacción')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Selector de tipo de transacción
+            DropdownButton<String>(
+              value: _transactionType,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _transactionType = newValue!; // Actualizar el estado
+                });
+              },
+              items: <String>['Gasto', 'Ingreso']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
             TextField(
               controller: _amountController,
               decoration: const InputDecoration(labelText: 'Monto'),
@@ -34,34 +56,21 @@ class AddExpenseScreen extends StatelessWidget {
               onPressed: () async {
                 final amount = double.tryParse(_amountController.text) ?? 0.0;
                 final category = _categoryController.text;
+                final isIncome = _transactionType == 'Ingreso'; // Determinar si es un ingreso
 
                 if (amount > 0 && category.isNotEmpty) {
-                  if (authProvider.isAuthenticated) {
-                    // Si el usuario está autenticado, guarda el gasto
-                    await financeProvider.addExpense(
-                      userId: authProvider.user!.uid, // Usa el ID del usuario autenticado
+                  try {
+                    await financeProvider.addTransaction(
                       amount: amount,
                       category: category,
                       date: DateTime.now(),
+                      isIncome: isIncome,
+                      userId: authProvider.isAuthenticated ? authProvider.user!.uid : null,
                     );
                     Navigator.pop(context); // Regresar a la pantalla anterior
-                  } else {
-                    // Si el usuario no está autenticado, muestra un diálogo
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Iniciar Sesión Requerido'),
-                        content: const Text('Debes iniciar sesión para guardar gastos.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Cerrar el diálogo
-                              Navigator.pushNamed(context, '/login'); // Redirigir a login
-                            },
-                            child: const Text('Iniciar Sesión'),
-                          ),
-                        ],
-                      ),
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al agregar la transacción: $e')),
                     );
                   }
                 } else {

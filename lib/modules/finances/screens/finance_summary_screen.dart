@@ -10,16 +10,30 @@ class FinanceSummaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final financeProvider = Provider.of<FinanceProvider>(context);
 
+    // Calcular total de gastos e ingresos
+    double totalExpenses = financeProvider.transactions
+        .where((transaction) => !transaction['isIncome'])
+        .fold(0.0, (sum, transaction) => sum + (transaction['amount'] as double));
+
+    double totalIncome = financeProvider.transactions
+        .where((transaction) => transaction['isIncome'])
+        .fold(0.0, (sum, transaction) => sum + (transaction['amount'] as double));
+
     return Scaffold(
       appBar: AppBar(title: const Text('Resumen Financiero')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            FinanceChart(expenses: financeProvider.expenses),
+            FinanceChart(transactions: financeProvider.transactions),
             const SizedBox(height: 20),
             Text(
-              'Gastos Totales: \$${financeProvider.expenses.fold(0.0, (sum, expense) => sum + (expense['amount'] as double)).toStringAsFixed(2)}',
+              'Gastos Totales: \$${totalExpenses.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Ingresos Totales: \$${totalIncome.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],

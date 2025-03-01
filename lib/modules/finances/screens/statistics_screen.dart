@@ -17,7 +17,7 @@ class StatisticsScreen extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: FinanceTable(expenses: financeProvider.expenses),
+              child: FinanceTable(transactions: financeProvider.transactions),
             ),
           ],
         ),

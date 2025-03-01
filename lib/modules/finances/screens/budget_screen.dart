@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/finance_provider.dart';
+import '/../modules/auth/providers/auth_provider.dart'; // Importa AuthProvider para obtener el userId
 
 class BudgetScreen extends StatelessWidget {
   final _categoryController = TextEditingController();
@@ -11,6 +12,7 @@ class BudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final financeProvider = Provider.of<FinanceProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context); // Obtén el AuthProvider
 
     return Scaffold(
       appBar: AppBar(title: const Text('Presupuestos')),
@@ -34,13 +36,19 @@ class BudgetScreen extends StatelessWidget {
                 final limit = double.tryParse(_limitController.text) ?? 0.0;
 
                 if (category.isNotEmpty && limit > 0) {
-                  await financeProvider.setBudget(
-                    userId: 'userId', // Cambia por el ID del usuario actual
-                    category: category,
-                    limit: limit,
-                  );
-                  _categoryController.clear();
-                  _limitController.clear();
+                  try {
+                    await financeProvider.setBudget(
+                      userId: authProvider.user!.uid, // Usa el ID del usuario autenticado
+                      category: category,
+                      limit: limit,
+                    );
+                    _categoryController.clear();
+                    _limitController.clear();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al establecer el presupuesto: $e')),
+                    );
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Por favor, ingresa una categoría y un límite válidos')),

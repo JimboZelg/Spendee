@@ -3,31 +3,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FinanceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Guardar un gasto
-  Future<void> saveExpense({
+  // Guardar una transacción (gasto o ingreso)
+  Future<void> saveTransaction({
     required String userId,
     required double amount,
     required String category,
     required DateTime date,
+    required bool isIncome, // Indica si es un ingreso
   }) async {
     try {
-      await _firestore.collection('users').doc(userId).collection('expenses').add({
+      await _firestore.collection('users').doc(userId).collection('transactions').add({
         'amount': amount,
         'category': category,
         'date': Timestamp.fromDate(date),
+        'isIncome': isIncome, // Agregar el campo isIncome
       });
     } catch (e) {
-      throw Exception('Error al guardar el gasto: $e');
+      throw Exception('Error al guardar la transacción: $e');
     }
   }
 
-  // Obtener todos los gastos de un usuario
-  Future<List<Map<String, dynamic>>> getExpenses(String userId) async {
+  // Obtener todas las transacciones de un usuario
+  Future<List<Map<String, dynamic>>> getTransactions(String userId) async {
     try {
       final querySnapshot = await _firestore
           .collection('users')
           .doc(userId)
-          .collection('expenses')
+          .collection('transactions')
           .orderBy('date', descending: true)
           .get();
 
@@ -38,7 +40,7 @@ class FinanceService {
         return data;
       }).toList();
     } catch (e) {
-      throw Exception('Error al obtener los gastos: $e');
+      throw Exception('Error al obtener las transacciones: $e');
     }
   }
 
