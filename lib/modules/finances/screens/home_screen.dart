@@ -5,25 +5,16 @@ import 'package:spendee/core/theme/text_styles.dart';
 import 'package:spendee/core/theme/theme_provider.dart';
 import 'package:spendee/modules/auth/providers/auth_provider.dart';
 import '../providers/finance_provider.dart';
-import '../widgets/finance_summary.dart'; // Importa el nuevo widget
-import '../widgets/account_summary.dart'; // Importa el nuevo widget
-import '../widgets/recent_transactions.dart'; // Importa el nuevo widget
-import '../widgets/balance_chart.dart'; // Importa el nuevo widget
+import '../widgets/finance_summary.dart';
+import '../widgets/account_summary.dart';
+import '../widgets/recent_transactions.dart';
+import '../widgets/balance_chart.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final financeProvider = Provider.of<FinanceProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
-
-    // Calcular total de gastos e ingresos
-    double totalExpenses = financeProvider.transactions
-        .where((transaction) => !transaction['isIncome'])
-        .fold(0, (sum, transaction) => sum + transaction['amount']);
-
-    double totalIncome = financeProvider.transactions
-        .where((transaction) => transaction['isIncome'])
-        .fold(0, (sum, transaction) => sum + transaction['amount']);
 
     return Scaffold(
       appBar: AppBar(
@@ -105,7 +96,16 @@ class HomeScreen extends StatelessWidget {
                 themeProvider.toggleTheme();
               },
             ),
-            if (authProvider.isAuthenticated)
+            if (!authProvider.isAuthenticated) // Mostrar solo si no está autenticado
+              ListTile(
+                leading: Icon(Icons.login),
+                title: Text('Iniciar Sesión'),
+                onTap: () {
+                  Navigator.pop(context); // Cerrar el drawer
+                  Navigator.pushNamed(context, AppRoutes.login); // Navegar a la pantalla de login
+                },
+              ),
+            if (authProvider.isAuthenticated) // Mostrar solo si está autenticado
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Cerrar Sesión'),
@@ -124,37 +124,13 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Card de Gastos Totales
-              Card(
-                child: ListTile(
-                  title: Text('Gastos Totales', style: TextStyles.bodyMedium),
-                  subtitle: Text(
-                    '\$${totalExpenses.toStringAsFixed(2)}',
-                    style: TextStyles.bodyLarge,
-                  ),
-                  trailing: Icon(Icons.money_off, color: Colors.red),
-                ),
-              ),
-              SizedBox(height: 10),
-              // Card de Ingresos Totales
-              Card(
-                child: ListTile(
-                  title: Text('Ingresos Totales', style: TextStyles.bodyMedium),
-                  subtitle: Text(
-                    '\$${totalIncome.toStringAsFixed(2)}',
-                    style: TextStyles.bodyLarge,
-                  ),
-                  trailing: Icon(Icons.attach_money, color: Colors.green),
-                ),
-              ),
+              FinanceSummary(),
               SizedBox(height: 20),
-              FinanceSummary(), // Nuevo widget
+              AccountSummary(),
               SizedBox(height: 20),
-              AccountSummary(), // Nuevo widget
+              RecentTransactions(),
               SizedBox(height: 20),
-              RecentTransactions(), // Nuevo widget
-              SizedBox(height: 20),
-              BalanceChart(), // Nuevo widget
+              BalanceChart(),
             ],
           ),
         ),

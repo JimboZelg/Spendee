@@ -17,7 +17,7 @@ class DatabaseService {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     // Habilitar persistencia offline
-    _firestore.settings = Settings(persistenceEnabled: true);
+    _firestore.settings = const Settings(persistenceEnabled: true);
   }
 
   // Guardar un gasto en la base de datos

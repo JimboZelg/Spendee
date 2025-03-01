@@ -18,7 +18,7 @@ void main() async {
   await Firebase.initializeApp();
 
   // Configuración de Firestore
-  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
 
   // Inicializar Hive CE
   await Hive.initFlutter(); // Inicializa Hive CE
@@ -38,7 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AvatarProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MyApp(), // MyApp está definido en app.dart
+      child: const MyApp(), // MyApp está definido en app.dart
     ),
   );
 }

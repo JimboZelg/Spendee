@@ -23,10 +23,10 @@ class AppRoutes {
       login: (context) => LoginScreen(),
       register: (context) => RegisterScreen(), // Pantalla de registro
       home: (context) => HomeScreen(),
-      addExpense: (context) => AddExpenseScreen(),
-      statistics: (context) => StatisticsScreen(),
+      addExpense: (context) => const AddExpenseScreen(),
+      statistics: (context) => const StatisticsScreen(),
       customizeAvatar: (context) => const CustomizeAvatarScreen(userId: 'userId'), // Cambia 'userId' por el ID del usuario actual
-      notificationSettings: (context) => NotificationSettingsScreen(),
+      notificationSettings: (context) => const NotificationSettingsScreen(),
     };
   }
 }

@@ -25,11 +25,11 @@ class AppRoutes {
     return {
       login: (context) => LoginScreen(),
       register: (context) => RegisterScreen(),
-      addExpense: (context) => AddExpenseScreen(),
+      addExpense: (context) => const AddExpenseScreen(),
       budget: (context) => BudgetScreen(),
-      financeSummary: (context) => FinanceSummaryScreen(),
-      statistics: (context) => StatisticsScreen(),
-      notificationSettings: (context) => NotificationSettingsScreen(),
+      financeSummary: (context) => const FinanceSummaryScreen(),
+      statistics: (context) => const StatisticsScreen(),
+      notificationSettings: (context) => const NotificationSettingsScreen(),
       customizeAvatar: (context) => const CustomizeAvatarScreen(userId: 'userId'), // Cambia 'userId' por el ID del usuario actual
     };
   }
